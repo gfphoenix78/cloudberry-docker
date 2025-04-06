@@ -29,13 +29,25 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Extract metadata (tags, labels)
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=schedule
+            type=ref,event=branch
+            type=ref,event=tag
+            type=sha
+
       - name: Build and push
         uses: docker/build-push-action@v2
         with:
-          context: .
-          file: ./images/rockylinux9.Dockerfile
+          context: images
+          file: images/rockylinux9.Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
-          tags: username/repository:tag
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
