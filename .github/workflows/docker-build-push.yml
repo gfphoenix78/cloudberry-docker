@@ -28,6 +28,8 @@ jobs:
 
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          tags: true
 
       - name: Get Version from Git
         id: get_version
