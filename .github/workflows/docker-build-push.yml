@@ -40,7 +40,7 @@ jobs:
           file: images/rockylinux9.Dockerfile
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:build-${{ steps.get_version.outputs.VERSION }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:build-${{ env.VERSION }}
           labels: build
           cache-from: type=gha
           cache-to: type=gha,mode=max
