@@ -47,7 +47,7 @@ jobs:
           file: images/rockylinux9.Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          labels: build
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
