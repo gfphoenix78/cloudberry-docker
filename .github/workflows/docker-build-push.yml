@@ -29,16 +29,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Extract metadata (tags, labels)
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=schedule
-            type=ref,event=branch
-            type=ref,event=tag
-            type=sha
+      - name: Get Version from Git
+        id: get_version
+        run: echo "VERSION=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
 
       - name: Build and push
         uses: docker/build-push-action@v5
@@ -46,7 +39,8 @@ jobs:
           context: images
           file: images/rockylinux9.Dockerfile
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:build-${{ steps.get_version.outputs.VERSION }}
           labels: build
           cache-from: type=gha
           cache-to: type=gha,mode=max
