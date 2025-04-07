@@ -36,7 +36,7 @@ jobs:
         id: get_version
         run: echo "VERSION=$(git describe --tags)" >> $GITHUB_ENV
 
-      - name: Build and push
+      - name: Build and push build
         uses: docker/build-push-action@v5
         with:
           context: images
@@ -45,6 +45,18 @@ jobs:
           tags: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:build-${{ env.VERSION }}
           labels: build
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build and push test
+        uses: docker/build-push-action@v5
+        with:
+          context: images
+          file: images/rockylinux9_test.Dockerfile
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:test-${{ env.VERSION }}
+          labels: test
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
