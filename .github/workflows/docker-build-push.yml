@@ -8,7 +8,7 @@ on:
 
 env:
   REGISTRY: docker.io
-  IMAGE_NAME: cbdb_build_rocky9
+  IMAGE_NAME: gfphoenix/cloudberry
 
 jobs:
   build:
@@ -21,33 +21,30 @@ jobs:
         uses: docker/setup-buildx-action@v2
 
       - name: Login to DockerHub
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Extract metadata (tags, labels)
-        id: meta
-        uses: docker/metadata-action@v5
+        uses: actions/checkout@v4
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=schedule
-            type=ref,event=branch
-            type=ref,event=tag
-            type=sha
+          fetch-tags: true
+          fetch-depth: 0
+
+      - name: Get Version from Git
+        id: get_version
+        run: echo "VERSION=$(git describe --tags)" >> $GITHUB_ENV
 
       - name: Build and push
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v5
         with:
           context: images
           file: images/rockylinux9.Dockerfile
-          push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:build-${{ env.VERSION }}
+          labels: build
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
